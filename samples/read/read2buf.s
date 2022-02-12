@@ -22,16 +22,16 @@ _start:
     nop
 
     #read input
-    movl    $3,         %eax
-    movl    $0,         %ebx
+    movl    $3,         %eax  #syscall read
+    movl    $0,         %ebx  #std input
     movl    $Str,       %ecx
     movl    $strlen,    %edx
     int     $0x80
 
-    movl    %eax,       $(e1_len)
+    movl    %eax,       $Str
     cmp     %edx,       %eax
     jb      endloop
-    movl    %ecx + %eax-1,    %bl
+    movl    -0x1(%ecx,%eax,1),  %bl
     cmp     $10,        %b1
     je      endloop
     incl    $e1_len
