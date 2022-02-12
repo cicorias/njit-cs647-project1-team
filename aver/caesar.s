@@ -89,7 +89,7 @@
 
                 #READ plaintext
                 #TODO
-                pushl PlainText
+                pushl $PlainText
                 call ReadFunction
                 #TODO: end
                 
@@ -106,10 +106,10 @@
 
                 #READ shift
                 #TODO
-                pushl Shift
+                pushl $Shift
                 call ReadFunction
                 #TODO: end
-                
+
                 #calculate cipher
                 #TODO
 
