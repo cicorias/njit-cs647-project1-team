@@ -32,14 +32,11 @@
         _start:
 
                 # push the strlen on the stack
-                pushl $lenHelloWorld
-
+                pushl $lenPtPrompt
                 # push the string pointer on the stack
-                pushl $HelloWorld
-
+                pushl $PlaintextPrompt
                 # Call the function
                 call PrintFunction
-
                 # adjust the stack pointer
                 addl $8, %esp
 
