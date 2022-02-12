@@ -58,3 +58,5 @@ dkms.conf
 cver/caeaser.s
 
 aver/caesar
+samples/nasm/readnasm/target/main
+samples/read/read2buf

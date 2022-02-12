@@ -2,15 +2,15 @@
 
         PlaintextPrompt:
                 .asciz "Please enter the plaintext:\n"
-				lenPtPrompt = .-PlaintextPrompt
+                lenPtPrompt = .-PlaintextPrompt
         ShiftPrompt:
                 .asciz "Please enter the shift value:\n"
-				lenShiftPrompt = .-ShiftPrompt
+                lenShiftPrompt = .-ShiftPrompt
 
 .bss
 
-	.comm   PlainText, 51 # with \n
-	.comm   Shift, 5  # max 1000 as char
+    .comm   PlainText, 51 # with \n
+    .comm   Shift, 5  # max 1000 as char
     .comm   CipherText, 51 # with \n
 
 .text
@@ -51,10 +51,10 @@
                 int $0x80
 
                 ## Need the cycle to count input length ##	
-	            movl $1, %ecx 		#counter
+                movl $1, %ecx 		#counter
 
                 end_input:
-                	xor %ebx, %ebx      #zero out ebx target
+                    xor %ebx, %ebx      #zero out ebx target
                     movb (%esp), %bl    #move just a byte to part of ebx
                     add $1, %esp		#get next char to compare 
                     add $1, %ecx	 	#counter+=1
