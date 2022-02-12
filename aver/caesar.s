@@ -41,6 +41,29 @@
                 addl $8, %esp
 
 
+                #READ plaintext
+                #TODO
+
+                #prompt for shift
+                # push the strlen on the stack
+                pushl $lenShiftPrompt
+                # push the string pointer on the stack
+                pushl $ShiftPrompt
+                # Call the function
+                call PrintFunction
+                # adjust the stack pointer
+                addl $8, %esp
+
+
+                #READ shift
+                #TODO
+
+                #calculate cipher
+                #TODO
+
+                #PRINT cipher text
+                #TODO
+
                 ExitCall:
 
                         movl $1, %eax
