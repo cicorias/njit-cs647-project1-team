@@ -44,21 +44,26 @@
                 #movl $1,    %ebx  # shouild be address of rss comm string
                 movl $3,    %eax	# syscall for read()
                 movl $0, 	%ebx	# File descriptor
-                movl %esp, %ecx 	#starting point
+                movl %esp,  %ecx 	#starting point
                 #movl 8(%ebp), %ecx  # param address? TODO: verify size
+                #TODO: use stack limit
                 movl $MAX_CHAR, %edx
                 int $0x80
-
 
                 ## Need the cycle to count input length ##	
 	            movl $1, %ecx 		#counter
 
                 end_input:
-                	xor %ebx, %ebx
-                    movb (%esp), %bl
+                	xor %ebx, %ebx      #zero out ebx target
+                    movb (%esp), %bl    #move just a byte to part of ebx
                     add $1, %esp		#get next char to compare 
                     add $1, %ecx	 	#counter+=1
-                    cmp $0xa, %ebx		#compare with "\n" 
+                    cmp $0xa, %ebx		#compare with "\n"
+                    #TODO: use stack pointer to bss 
+                    #movb %bl, %ecx(PlainText)
+                    movl %ecx, %edi
+                    movb %bl, PlainText(%ecx,%edi,1) 
+                    
                     jne end_input		#if not, continue 
 
 
@@ -77,6 +82,8 @@
 
         _start:
 
+                nop
+
                 # push the strlen on the stack
                 pushl $lenPtPrompt
                 # push the string pointer on the stack
@@ -92,6 +99,13 @@
                 pushl $PlainText
                 call ReadFunction
                 #TODO: end
+
+
+                #DEBUG
+                pushl $50
+                pushl $PlainText
+                call PrintFunction
+
                 
                 #prompt for shift
                 # push the strlen on the stack
