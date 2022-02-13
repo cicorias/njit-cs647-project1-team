@@ -53,4 +53,4 @@ _printInput:
 _exit:
     mov eax, 1          ; Return
     mov ebx, 0          ; | <- return code
-    int 80h             ; \
+    int 0x80            ; \
