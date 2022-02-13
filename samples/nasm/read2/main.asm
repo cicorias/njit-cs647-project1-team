@@ -2,6 +2,8 @@ section .data
   question db "What is your name? "
   greeting db "Hello, "
 
+;// https://resources.infosecinstitute.com/topic/how-to-build-a-program-and-execute-an-application-entirely-built-in-x86-assembly/
+
 section .bss
   input resb 24
 
