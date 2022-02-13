@@ -28,29 +28,40 @@ _start:
     movl    $strlen,    %edx
     int     $0x80
 
-    movl    %eax,       $Str
+    movl    %eax,       Str
     cmp     %edx,       %eax
     jb      endloop
-    movl    -0x1(%ecx,%eax,1),  %bl
-    cmp     $10,        %b1
+    movb    -0x1(%ecx,%eax,1),  %bl
+    cmp     $10,        %bl
     je      endloop
-    incl    $e1_len
+    incl    e1_len
 
 
     loop:
-
-
+        movl    $3,         %eax  #syscall read
+        movl    $0,         %ebx  #std input        
+        movl    $Str,       %ecx
+        movl    $strlen,    %edx
+        int     $0x80
+        test    %eax,       %eax
+        je      endloop
+        movb    dummy,      %al
+        jne     loop
 
     endloop:
 
 
+    movl    $4,     %eax
+    movl    $1,     %ebx
+    movl    $Str,   %ecx
+    movl    $e1_len,      %edx
 
     #just write something
-    movl    $len,       %edx       # third argument: message length.
-    movl    $msg,       %ecx       # second argument: pointer to message to write.
-    movl    $1,         %ebx	        # first argument: file handle (stdout).
-    movl    $4,         %eax	        # system call number (sys_write).
-    int     $0x80           # call kernel.
+    // movl    $len,       %edx       # third argument: message length.
+    // movl    $msg,       %ecx       # second argument: pointer to message to write.
+    // movl    $1,         %ebx	        # first argument: file handle (stdout).
+    // movl    $4,         %eax	        # system call number (sys_write).
+    // int     $0x80           # call kernel.
 
     # and exit.
 
