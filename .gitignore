@@ -54,11 +54,6 @@ dkms.conf
 
 .vscode
 
-
-cver/caeaser.s
-
-aver/caesar
-samples/nasm/readnasm/target/main
-samples/read/read2buf
-samples/nasm/read2/target/main
-samples/read2/main
+caesar
+main
+read2buf
