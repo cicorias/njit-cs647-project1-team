@@ -1,0 +1,1 @@
+./test.sh && ./test1.sh && ./test2.sh && ./test3.sh && ./test10.sh && ./test30.sh
