@@ -11,6 +11,8 @@
         .asciz  "your ciphertext is: "      # the string to print.
         prompt3len = .-prompt3                               # length of the string.
 
+    ROTTEMP:
+      .int 3
 
 .bss
     .comm   plaintext  51                   # plaintext message 10 now for testing only will be 51
@@ -32,18 +34,31 @@
     pushl %ebp              # store the current value of EBP on the stack
     movl %esp, %ebp         # Make EBP point to top of stack
 
-    # stack
-    movl 8(%ebp), %ecx      # parm 1 pointer to plaintext  # TODO: redundant
-    movl 12(%ebp), %edx     # parm 2 rot length
+    # these are my registers....
+    xor %eax, %eax   #1
+    xor %ebx, %ebx
+    xor %ecx, %ecx   #1
+    xor %edx, %edx
 
-      # debug
+    # stack
+    # movl 8(%ebp), %ecx      # parm 1 pointer to plaintext  # TODO: redundant
+    # movl 12(%ebp), %edx     # parm 2 rot length
+
+      # debug what offset is it on stack
+      pushl $4
+      pushl $ROTTEMP
+      call PrintFunction
+      subl $8, %esp
+
+
+      # debug - this is the string address...
       pushl $51
       pushl 8(%ebp)
       call PrintFunction
       # reset stack x2
       subl $8, %esp
 
-      # debug
+      # debug -- this is the ROT address
       pushl $5
       pushl 12(%ebp)
       call PrintFunction
@@ -72,14 +87,41 @@
       movl 8(%ebp), %esi # plaintext, %esi
       movl 8(%ebp), %edi # plaintext, %edi
       movl $51, %ecx
+
+      pushl $0  # my counter at
       
       Loop:
 				
         # Convert character to lowercase (assumes character is valid ASCII alphabetical character)
       
         # TODO: ROT coded to "1" T
-        lodsb				# load in the first byte to eax	
-        add 	$1, %al	# add ROT to that byte in eax
+        # TODO: IF OVER 'Z' 90 0x5A
+
+        lodsb				# load in the first byte to eax
+        # check if in range
+        # IF eax < 65 - exit
+        // cmp $65, %eax
+        // jb _exit
+
+        # IF eax > 90 - exit
+        cmp $90, %eax
+        jg _exit
+
+        cmp $0xa, %eax		#compare with "\n"
+        je PrintStrAfter
+
+        # IF eax + ROT > 90 ; eax + ROT - 26
+        movl %eax, %edx
+        
+        addl ROTTEMP, %edx
+        cmp $90, %edx
+        jl doshift
+
+        sub $26, %al
+
+        doshift:
+        # now shift.. ?? %ebx
+        add   ROTTEMP, %al # 	%dl, %al	# add ROT to that byte in eax
         stosb				# store that byte in DestinationWithStos
         dec		%ecx		# decrement the counter			
         
@@ -134,7 +176,9 @@
     popl %ebp               # Restore the old value of EBP
     ret                     # change EIP to to jump to "addl $8, %esp"
 
-
+  AtoI:
+  # https://stackoverflow.com/questions/19461476/convert-string-to-int-x86-32-bit-assembler-using-nasm/28202303#28202303
+    nop
 
 _start:
   nop
