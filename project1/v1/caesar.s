@@ -11,13 +11,10 @@
         .asciz  "your ciphertext is: "      # the string to print.
         prompt3len = .-prompt3                               # length of the string.
 
-    ROTTEMP:
-      .int 3
 
 .bss
     .comm   plaintext  51               # plaintext message 10 now for testing only will be 51
     .comm   rotinput 5                  # number up to 1000 plus EOL
-    .comm   ciphertext 51
     .comm   rotvalue 4
 
 .text
@@ -43,13 +40,13 @@
 
     # logic
 
-    movl 8(%ebp), %esi # plaintext, %esi
-    movl 8(%ebp), %edi # plaintext, %edi
+    movl 8(%ebp), %esi # plaintext, %esi  # source
+    movl 8(%ebp), %edi # plaintext, %edi  #destination
     movl $51, %ecx
     
     Loop:
       
-      lodsb				# load in the first byte to eax
+      lodsb				# load in the next byte to eax
       # check if in range
       # IF eax < 65 - exit
       // cmp $65, %eax
@@ -65,7 +62,6 @@
       cmp $0xa, %eax		#compare with "\n"
       je PrintStrAfter
 
-      # IF eax + ROT > 90 ; eax + ROT - 26
       movl %eax, %edx
       
       addl 12(%ebp), %edx
@@ -95,12 +91,13 @@
 
 
 		PrintStrAfter:
-			movl	$4, %eax		# syscall number for write()
-			movl	$1,	%ebx		# file desriptor for stdout
-			# leal  ciphertext, %ecx # 	plaintext, %ecx		# ecx -> Str
-      movl  8(%ebp), %ecx 
-			movl	$51, %edx	# store length of Str in edx
-			int 	$0x80			# syscall
+      nop
+			// movl	$4, %eax		# syscall number for write()
+			// movl	$1,	%ebx		# file desriptor for stdout
+			// # leal  ciphertext, %ecx # 	plaintext, %ecx		# ecx -> Str
+      // movl  8(%ebp), %ecx 
+			// movl	$51, %edx	# store length of Str in edx
+			// int 	$0x80			# syscall
 
     # epilog
     movl %ebp, %esp         # Restore the old value of ESP
@@ -113,7 +110,7 @@
     movl $3, %eax
     movl $0, %ebx
     movl $plaintext, %ecx
-    movl $51, %edx
+    movl $51, %edx   # limit to 50 character as specified
     int $0x80
     ret
     
@@ -122,7 +119,7 @@
     movl $3, %eax
     movl $0, %ebx
     movl $rotinput, %ecx
-    movl $5, %edx
+    movl $5, %edx   # limit to 4 chars as < 1000
     int $0x80
     ret
 
@@ -179,15 +176,12 @@
 
     atoidone:
       # preserve it
+  	  movl	$0, 	%edx	# edx = 0
 
-      // movl  %eax, %ebx
-		  // idiv	%ebx			# The resulting quotient is stored in eax, and the remainder is stored in edx
-			// 					# eax will contain 20 and edx will contain 0
+      movl  $26, %ebx
+      idiv  %ebx
 
-
-      // movl  %edx, rotvalue
-
-      movl %eax, rotvalue
+      movl  %edx, rotvalue
 
     inval:
       # epilog
@@ -232,36 +226,17 @@ _start:
 
 
 
-  // # push the strlen on the stack
-  // pushl $prompt3len
-  // # push the string pointer on the stack
-  // pushl $prompt3
-  // call PrintFunction
+  # push the strlen on the stack
+  pushl $prompt3len
+  # push the string pointer on the stack
+  pushl $prompt3
+  call PrintFunction
 
-  // # push the strlen on the stack
-  // pushl $51
-  // # push the string pointer on the stack
-  // pushl $plaintext
-  // call PrintFunction
-
-
-
-  // # TODO: remove 
-  // # DEBUG
-  // # push the strlen on the stack
-  // pushl $51
-  // # push the string pointer on the stack
-  // pushl $plaintext
-  // call PrintFunction
-  
-
-  // # push the strlen on the stack
-  // pushl $5
-  // # push the string pointer on the stack
-  // pushl $rotinput
-  // call PrintFunction  
-
-  # debug end
+  # push the strlen on the stack
+  pushl $51
+  # push the string pointer on the stack
+  pushl $plaintext
+  call PrintFunction
 
   call _exit
 
