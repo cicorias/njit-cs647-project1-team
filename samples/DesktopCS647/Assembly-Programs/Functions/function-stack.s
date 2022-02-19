@@ -15,8 +15,8 @@
                 # The write function
                 movl $4, %eax
                 movl $1, %ebx
-                movl 8(%ebp), %ecx
-                movl 12(%ebp), %edx
+                movl 8(%ebp), %ecx   #message pointer
+                movl 12(%ebp), %edx  #length of message
                 int $0x80
 
                 movl %ebp, %esp         # Restore the old value of ESP

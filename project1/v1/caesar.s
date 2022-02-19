@@ -15,7 +15,7 @@
       .int 3
 
 .bss
-    .comm   plaintext  51                   # plaintext message 10 now for testing only will be 51
+    .comm   plaintext  51               # plaintext message 10 now for testing only will be 51
     .comm   rotinput 5                  # number up to 1000 plus EOL
     .comm   ciphertext 51
     .comm   rotvalue 4
@@ -37,90 +37,57 @@
 
     # these are my registers....
     xor %eax, %eax   #1
-    xor %ebx, %ebx
+    xor %ebx, %ebx   #1
     xor %ecx, %ecx   #1
-    xor %edx, %edx
-
-    # stack
-    # movl 8(%ebp), %ecx      # parm 1 pointer to plaintext  # TODO: redundant
-    # movl 12(%ebp), %edx     # parm 2 rot length
-
-      # debug what offset is it on stack
-      pushl $4
-      pushl $rotvalue # $ROTTEMP
-      call PrintFunction
-      subl $8, %esp
-
-
-      # debug - this is the string address...
-      pushl $51
-      pushl 8(%ebp)
-      call PrintFunction
-      # reset stack x2
-      subl $8, %esp
-
-      # debug -- this is the ROT address
-      pushl $5
-      pushl 12(%ebp)
-      call PrintFunction
-      # reset stack x2
-      subl $8, %esp
-      # debug - end
+    xor %edx, %edx   #1
 
     # logic
 
-      # shift each value
-      # TODO: use stack instead
-      # leal plaintext, %esi #  8(%ebp), %esi # plaintext, %esi
-      # leal ciphertext, %edi #  8(%ebp), %edi # plaintext, %edi
-      movl 8(%ebp), %esi # plaintext, %esi
-      movl 8(%ebp), %edi # plaintext, %edi
-      movl $51, %ecx
-
-      pushl $0  # my counter at
+    movl 8(%ebp), %esi # plaintext, %esi
+    movl 8(%ebp), %edi # plaintext, %edi
+    movl $51, %ecx
+    
+    Loop:
       
-      Loop:
-				
-        # Convert character to lowercase (assumes character is valid ASCII alphabetical character)
+      lodsb				# load in the first byte to eax
+      # check if in range
+      # IF eax < 65 - exit
+      // cmp $65, %eax
+      // jb _exit
+
+      cmp $32, %eax  # its a space
+      je noshift
+
+      # IF eax > 90 - exit
+      cmp $90, %eax
+      jg _exit
+
+      cmp $0xa, %eax		#compare with "\n"
+      je PrintStrAfter
+
+      # IF eax + ROT > 90 ; eax + ROT - 26
+      movl %eax, %edx
       
-        # TODO: ROT coded to "1" T
-        # TODO: IF OVER 'Z' 90 0x5A
+      addl 12(%ebp), %edx
+      // addl rotvalue, %edx
 
-        lodsb				# load in the first byte to eax
-        # check if in range
-        # IF eax < 65 - exit
-        // cmp $65, %eax
-        // jb _exit
 
-        cmp $32, %eax  # its a space
-        je noshift
+      cmp $90, %edx
+      jle doshift
 
-        # IF eax > 90 - exit
-        cmp $90, %eax
-        jg _exit
+      sub $26, %al
 
-        cmp $0xa, %eax		#compare with "\n"
-        je PrintStrAfter
+      doshift:
+        add   12(%ebp) , %al #
+        // add   rotvalue, %al
 
-        # IF eax + ROT > 90 ; eax + ROT - 26
-        movl %eax, %edx
-        
-        addl rotvalue, %edx  # ROTTEMP, %edx
-        cmp $90, %edx
-        jl doshift
-
-        sub $26, %al
-
-        doshift:
-        # now shift.. ?? %ebx
-        add  rotvalue, %al #  ROTTEMP, %al # 	%dl, %al	# add ROT to that byte in eax
         stosb				# store that byte in DestinationWithStos
         dec		%ecx		# decrement the counter			
         
         jecxz	PrintStrAfter
         jmp		Loop
 
-        noshift:
+      noshift:
         stosb
         dec   %ecx
         jecxz	PrintStrAfter
@@ -210,11 +177,18 @@
         addl %ebx, %eax      # and then add the new integer
         jmp nxchr           # go back for another numeral
 
-
-
     atoidone:
       # preserve it
-      movl  %eax, rotvalue
+
+      // movl  %eax, %ebx
+		  // idiv	%ebx			# The resulting quotient is stored in eax, and the remainder is stored in edx
+			// 					# eax will contain 20 and edx will contain 0
+
+
+      // movl  %edx, rotvalue
+
+      movl %eax, rotvalue
+
     inval:
       # epilog
       movl %ebp, %esp         # Restore the old value of ESP
@@ -251,7 +225,7 @@ _start:
 
   # at least this should use a stack...
   # push length
-  pushl $rotinput
+  pushl rotvalue
   # push pointer
   pushl $plaintext
   call Encrypt

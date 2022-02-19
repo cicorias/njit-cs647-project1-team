@@ -3,9 +3,8 @@
 set timeout -1
 spawn ./caesar
 expect "Please enter the plaintext: "
-send -- "HERE COME BUFFER OVERFLOWS\r"
+send -- "HELLO WORLD\r"
 expect "Please enter the shift value: "
-send -- "23\r"
-# expect "EBOB ZLJB YRCCBO LSBOCILTP\n"
-expect "EBOB ZLJB YRCCBO LSBOCILTP"
+send -- "41\r"
+expect "WTAAD LDGAS"
 expect eof
