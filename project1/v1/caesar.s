@@ -15,6 +15,7 @@
 .bss
     .comm   plaintext  51                   # plaintext message 10 now for testing only will be 51
     .comm   rotinput 5                  # number up to 1000 plus EOL
+    .comm   ciphertext 51
 
 
 .text
@@ -32,29 +33,73 @@
     movl %esp, %ebp         # Make EBP point to top of stack
 
     # stack
-    movl 8(%ebp), %ecx      # pointer to plaintext
-    movl 12(%ebp), %edx     # rot length
+    movl 8(%ebp), %ecx      # parm 1 pointer to plaintext  # TODO: redundant
+    movl 12(%ebp), %edx     # parm 2 rot length
 
       # debug
       pushl $51
       pushl 8(%ebp)
       call PrintFunction
+      # reset stack x2
+      subl $8, %esp
+
       # debug
       pushl $5
       pushl 12(%ebp)
       call PrintFunction
+      # reset stack x2
+      subl $8, %esp
       # debug - end
 
     # logic
+      # convert string to int
+      # must handle moulus % 26
+        // while:
+        //   mov (%edx), %cl
+        //   cmp $10, %cl               # if char is not asci 10 (enter)
+        //   je endwhile
+          
+        //   sub $48, %cl
+        //   add %cl, %al
+        //   inc %ebx
+        //   jmp while
+        // endwhile:
 
+      # shift each value
+      # TODO: use stack instead
+      # leal plaintext, %esi #  8(%ebp), %esi # plaintext, %esi
+      # leal ciphertext, %edi #  8(%ebp), %edi # plaintext, %edi
+      movl 8(%ebp), %esi # plaintext, %esi
+      movl 8(%ebp), %edi # plaintext, %edi
+      movl $51, %ecx
+      
+      Loop:
+				
+        # Convert character to lowercase (assumes character is valid ASCII alphabetical character)
+      
+        # TODO: ROT coded to "1" T
+        lodsb				# load in the first byte to eax	
+        add 	$1, %al	# add ROT to that byte in eax
+        stosb				# store that byte in DestinationWithStos
+        dec		%ecx		# decrement the counter			
+        
+        jecxz	PrintStrAfter
+        jmp		Loop
+
+
+		PrintStrAfter:
+			movl	$4, %eax		# syscall number for write()
+			movl	$1,	%ebx		# file desriptor for stdout
+			# leal  ciphertext, %ecx # 	plaintext, %ecx		# ecx -> Str
+      movl  8(%ebp), %ecx 
+			movl	$51, %edx	# store length of Str in edx
+			int 	$0x80			# syscall
 
     # epilog
     movl %ebp, %esp         # Restore the old value of ESP
     popl %ebp               # Restore the old value of EBP
     ret   
 
-
-    
 
   GetInput1:
     nop
